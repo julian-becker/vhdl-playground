@@ -13,40 +13,47 @@ architecture main_arch of main is
   signal clock : std_ulogic := '0';
   signal reset : std_ulogic;
   signal digit : natural range 0 to 9;
-  constant CLOCK_FREQ : natural := 1e3;
 
 begin
   sc : entity work.slow_counter
     generic map (
-      CLOCK_FREQUENCY_Hz => CLOCK_FREQ)
+      CLOCK_FREQUENCY_Hz => 100)
     port map (
       clock => clock,
+      reset => reset,
       digit => digit);
 
   process
   begin
     clock <= '0';
+    reset <= '1';
     wait for 1 ns;
+    reset <= '0';
+    wait for 1 ns;
+    assert digit = 0;
+
 
     for n in 1 to 9 loop
-      for i in 1 to CLOCK_FREQ - 1 loop
+      for i in 1 to 100 loop
         clock <= not clock;
         wait for 0.5 ns;
         clock <= not clock;
         wait for 0.5 ns;
       end loop;
 
-      assert digit = n - 1;
-
-      clock <= not clock;
-      wait for 0.5 ns;
-      clock <= not clock;
-      wait for 0.5 ns;
-
       assert digit = n;
     end loop;
 
+    for n in 1 to 9 loop
+      for i in 1 to 100 loop
+        clock <= not clock;
+        wait for 0.5 ns;
+        clock <= not clock;
+        wait for 0.5 ns;
+      end loop;
 
+      assert digit = n;
+    end loop;
 
     segments <= seven_seg_from_integer(0);
     wait for 1 ns;
