@@ -15,6 +15,16 @@ end;
 architecture slow_counter_arch of slow_counter is
   constant COUNTER_MAX : natural := CLOCK_FREQUENCY_Hz - 1;
 
+  function cyclic_increment(value: natural; period: natural)
+    return natural is
+  begin
+    if value < period-1 then
+      return value + 1;
+    else
+      return 0;
+    end if;
+  end;
+
   type state_t is record
     count : natural range 0 to COUNTER_MAX;
     digit : natural range 0 to 9;
@@ -27,9 +37,9 @@ begin
   process (state)
   begin
       digit <= state.digit;
-      next_state.count <= state.count + 1 when state.count < COUNTER_MAX else 0;
-      next_state.digit <= state.digit + 1 when state.digit < 9 and state.count = 0 else
-                          state.digit     when state.digit < 9 else 0;
+
+      next_state.count <= cyclic_increment(state.count, COUNTER_MAX);
+      next_state.digit <= cyclic_increment(state.digit, 10) when state.count = 0 else state.digit;
   end process;
 
   process (clock, reset)

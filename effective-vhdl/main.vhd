@@ -44,7 +44,7 @@ begin
       assert digit = n;
     end loop;
 
-    for n in 1 to 9 loop
+    for n in 0 to 9 loop
       for i in 1 to 100 loop
         clock <= not clock;
         wait for 0.5 ns;
